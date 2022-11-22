@@ -29,11 +29,12 @@ import { requestPosts } from './utils/requestAPI';
 
     const replacedMdContent = mdContent
       .replaceAll(
-        /https?:\/\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/([\w\d]*)\/([^\/)]*)/g,
+        /\[!\[\]\((https?:\/\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*)\/([\w\d]*)\/([^\/\)]*)\)\]\([^)]*\)/g,
         (v) => {
-          let [fileURL, fileSize, fileName] = v.match(
-            /https?:\/\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/([\w\d]*)\/([^\/]*)/
-          ) as [string, string, string];
+          let [_, fileRoot, fileSize, fileName] = v.match(
+            /\[!\[\]\((https?:\/\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*)\/([\w\d]*)\/([^\/\)]*)\)\]\([^)]*\)/
+          ) as [string, string, string, string];
+          let fileURL = `${fileRoot}/${fileSize}/${fileName}`;
 
           let isImage = false;
           for (let exec of [
@@ -59,17 +60,14 @@ import { requestPosts } from './utils/requestAPI';
           const curImageIndex = imageIndexCount.toLocaleString('en-US', {
             minimumIntegerDigits: 3,
           });
-          if (fileURL.startsWith('https')) {
-            if (fileSize !== 's1600')
-              fileURL = fileURL.replace(/\/s\d{1,2}00\//g, '/s1600/');
-            if (imageIndexCount == 0)
-              thumbnailImage = curImageIndex + '_' + fileName;
-            toBeDownloaded.push([fileURL, fileName, path, curImageIndex]);
-          } else {
-            imageIndexCount++;
-          }
+          if (fileSize !== 's1600')
+            fileURL = fileURL.replace(/\/s\d{1,2}00\//g, '/s1600/');
+          if (imageIndexCount == 0)
+            thumbnailImage = curImageIndex + '_' + fileName;
+          toBeDownloaded.push([fileURL, fileName, path, curImageIndex]);
+          imageIndexCount++;
 
-          return curImageIndex + '_' + fileName;
+          return `![${fileName}](./${curImageIndex}_${fileName})`;
         }
       )
       .replaceAll(/^#/gm, ''); // ## -> # , ### -> ##
@@ -89,9 +87,17 @@ import { requestPosts } from './utils/requestAPI';
     });
 
     const file = new Uint8Array(
-      Buffer.from(mdMetadata + '\n' + replacedMdContent)
+      Buffer.from(
+        mdMetadata +
+          '\n' +
+          replacedMdContent.substring(
+            replacedMdContent.indexOf('\n') + 2,
+            replacedMdContent.length
+          ) // remove first line
+      )
     );
-    await fs.writeFile(path + 'index.md', file);
+
+    await fs.writeFile(path + 'index.mdx', file);
   }
 
   downloadImageList(toBeDownloaded);
