@@ -5,7 +5,7 @@ import downloadImage from '../utils/downloadImage';
 type FileURL = string;
 type FileName = string;
 type FilePath = string;
-type FilePrefixNum = number;
+type FilePrefixNum = string;
 
 export function downloadImageList(
   toBeDownloaded: [FileURL, FileName, FilePath, FilePrefixNum][]
@@ -27,11 +27,10 @@ export function downloadImageList(
       }, config.fetchConcurrencyLimit)
     )
     .subscribe({
-      next: (item) => {
+      next: (_item) => {
         console.log(
           'image downloading: ',
-          `${downloadedImageCount++}/${TotalImageNum}`,
-          item
+          `${downloadedImageCount++}/${TotalImageNum}`
         );
       },
       error: (err) => {

@@ -11,7 +11,7 @@ import { requestPosts } from './utils/requestAPI';
     maxResults: config.fetchConcurrencyLimit,
   });
 
-  const toBeDownloaded = [] as [string, string, string, number][];
+  const toBeDownloaded = [] as [string, string, string, string][];
 
   for await (const post of result) {
     let { content, published, title, author, labels } = post;
@@ -56,20 +56,25 @@ import { requestPosts } from './utils/requestAPI';
           }
           if (!isImage) return fileURL;
 
-          const curImageIndex = imageIndexCount;
+          const curImageIndex = imageIndexCount.toLocaleString('en-US', {
+            minimumIntegerDigits: 3,
+          });
           if (fileURL.startsWith('https')) {
             if (fileSize !== 's1600')
               fileURL = fileURL.replace(/\/s\d{1,2}00\//g, '/s1600/');
-            if (imageIndexCount == 0) thumbnailImage = fileName;
+            if (imageIndexCount == 0)
+              thumbnailImage = curImageIndex + '_' + fileName;
             toBeDownloaded.push([fileURL, fileName, path, curImageIndex]);
           } else {
             imageIndexCount++;
           }
 
-          return curImageIndex.toString() + '_' + fileName;
+          return curImageIndex + '_' + fileName;
         }
       )
       .replaceAll(/^#/gm, ''); // ## -> # , ### -> ##
+
+    // number to 4 digits
 
     const mdMetadata = generateMdMetadata({
       title,
