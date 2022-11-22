@@ -7,8 +7,11 @@ interface Params {
   keywords?: string[];
   date: string;
   draft: boolean;
+  thumbnail: string;
   private: boolean;
 }
+
+import dayjs from 'dayjs';
 
 const generateMdMetadata = ({
   title,
@@ -19,21 +22,22 @@ const generateMdMetadata = ({
   keywords,
   date,
   draft,
+  thumbnail,
   private: aPrivate,
 }: Params) => {
-  const aDate = new Date(date);
+  const aDay = dayjs(date);
 
   const string = `---
 title: ${title}
-slug: ${Math.floor(aDate.getTime() / 1000)}
+slug: '${aDay.unix()}'
 category: ${category}
 author: ${author}
 tags: [${tags?.reduce((acc, cur) => acc + `'#${cur}',`, '').slice(0, -1)}]
 keywords: [${keywords
     ?.reduce((acc, cur) => acc + `'${cur}',`, '')
     .slice(0, -1)}]
-date: ${aDate.getFullYear()}-${aDate.getMonth()}-${aDate.getDay()}
-thumbnail: image.png
+date: ${aDay.format('YYYY-MM-DD')}
+thumbnail: ${thumbnail}
 draft: ${draft ? 'true' : 'false'} 
 private: ${aPrivate ? 'true' : 'false'}
 ---`;

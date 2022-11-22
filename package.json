@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "chalk": "^5.1.2",
+    "dayjs": "^1.11.6",
     "dotenv": "^16.0.3",
     "got": "^12.5.3",
     "node-html-markdown": "^1.2.2",
