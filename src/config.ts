@@ -8,6 +8,7 @@ const config = {
   maxFetchPosts: Infinity,
   fetchConcurrencyLimit: 20,
   fetchRetryLimit: 5,
+  author: 'Aio', // or null
 };
 
 export default config;

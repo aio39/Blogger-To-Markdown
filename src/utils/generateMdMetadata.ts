@@ -12,6 +12,7 @@ interface Params {
 }
 
 import dayjs from 'dayjs';
+import config from '../config';
 
 const generateMdMetadata = ({
   title,
@@ -31,7 +32,7 @@ const generateMdMetadata = ({
 title: ${title}
 slug: '${aDay.unix()}'
 category: ${category}
-author: ${author}
+author: ${config.author ?? author}
 tags: [${tags?.reduce((acc, cur) => acc + `'#${cur}',`, '').slice(0, -1)}]
 keywords: [${keywords
     ?.reduce((acc, cur) => acc + `'${cur}',`, '')
