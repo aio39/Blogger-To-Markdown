@@ -38,53 +38,53 @@ import { requestPosts } from './utils/requestAPI';
 
     let imageIndexCount = 0;
 
-    const newMd = md.replaceAll(
-      /https?:\/\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/([\w\d]*)\/([^\/)]*)/g,
-      (v) => {
-        let [fileURL, fileSize, fileName] = v.match(
-          /https?:\/\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/([\w\d]*)\/([^\/]*)/
-        ) as [string, string, string];
+    const newMd = md
+      .replaceAll(
+        /https?:\/\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/([\w\d]*)\/([^\/)]*)/g,
+        (v) => {
+          let [fileURL, fileSize, fileName] = v.match(
+            /https?:\/\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/([\w\d]*)\/([^\/]*)/
+          ) as [string, string, string];
 
-        let isImage = false;
-        for (let exec of [
-          'jpg',
-          'png',
-          'gif',
-          'jpeg',
-          'webp',
-          'JPG',
-          'PNG',
-          'JPEG',
-          'GIF',
-          'WEBP',
-        ]) {
-          if (fileName.endsWith(exec)) {
-            isImage = true;
-            fileName = limitFileName(fileName);
-            break;
+          let isImage = false;
+          for (let exec of [
+            'jpg',
+            'png',
+            'gif',
+            'jpeg',
+            'webp',
+            'JPG',
+            'PNG',
+            'JPEG',
+            'GIF',
+            'WEBP',
+          ]) {
+            if (fileName.endsWith(exec)) {
+              isImage = true;
+              fileName = limitFileName(fileName);
+              break;
+            }
           }
-        }
-        if (!isImage) return fileURL;
+          if (!isImage) return fileURL;
 
-        const curImageIndex = imageIndexCount;
-        if (fileURL.startsWith('https')) {
-          if (fileSize !== 's1600') {
-            fileURL = fileURL.replace(/\/s\d{1,2}00\//g, '/s1600/');
+          const curImageIndex = imageIndexCount;
+          if (fileURL.startsWith('https')) {
+            if (fileSize !== 's1600') {
+              fileURL = fileURL.replace(/\/s\d{1,2}00\//g, '/s1600/');
+            }
+            toBeDownloaded.push([fileURL, fileName, path, curImageIndex]);
+          } else {
+            imageIndexCount++;
           }
-          toBeDownloaded.push([fileURL, fileName, path, curImageIndex]);
-        } else {
-          imageIndexCount++;
-        }
 
-        return curImageIndex.toString() + '_' + fileName;
-      }
-    );
+          return curImageIndex.toString() + '_' + fileName;
+        }
+      )
+      .replaceAll(/^#/gm, ''); // ## -> # , ### -> ##
 
     const file = new Uint8Array(Buffer.from(newMd));
     await fs.writeFile(path + 'index.md', file);
   }
-  // array to file
 
-  await fs.writeFile('./my.json', toBeDownloaded.join(', \n') + '\n');
   downloadImageList(toBeDownloaded);
 })();

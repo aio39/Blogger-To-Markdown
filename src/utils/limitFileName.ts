@@ -10,7 +10,7 @@ const limitFileName = (fileName: string) => {
 
     const slicedNameBytes = nameBytes.subarray(
       0,
-      MAX_FILE_NAME_LENGTH - extBytes.byteLength - 2
+      MAX_FILE_NAME_LENGTH - extBytes.byteLength - 1
     );
 
     const uft8decoder = new TextDecoder();
